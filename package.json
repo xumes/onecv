@@ -24,6 +24,7 @@
         "node-red-contrib-slacker":"*",
         "node-red-node-base64": "*",
         "node-red-contrib-play-audio": "*",
+        "node-red-node-box": "*",
         "bluebird": "^3.3.3",
 	    "knox": "latest",
         "fs": "latest",

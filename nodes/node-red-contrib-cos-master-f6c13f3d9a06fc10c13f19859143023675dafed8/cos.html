@@ -1,0 +1,352 @@
+<!--
+  Copyright 2016 IBM Corp.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  
+  Authors: Olaf Hahn, Harald Seipp
+-->
+
+<!--  Cloud Object Storage Get Node   -->
+<script type="text/x-red" data-template-name="cos-get">
+    <div class="form-row">
+        <label for="node-input-cosconfig"><i class="fa fa-tasks"></i> Cloud Object Storage Service</label>
+        <input type="text" id="node-input-cosconfig">
+    </div>
+    <div id="objectname" class="form-row">
+        <label for="node-input-objectname"><i class="fa fa-fileo"></i> Object Name</label>
+        <input type="text" id="node-input-objectname" placeholder="Name of the Object in the Store">
+    </div>
+    <div class="form-row">
+        <label for="node-input-bucket"><i class="fa fa-folder-open-o"></i> Bucket</label>
+        <input type="text" id="node-input-bucket" placeholder="Bucket">
+    </div>
+    <div id="mode" class="form-row">
+        <label for="node-input-mode"><i class="fa fa-fileo"></i> Mode</label>
+        <select id="node-input-mode">
+            <option value="0">Filebased</option>
+            <option value="1">Buffer</option>
+        </select>
+    </div>
+    <div id="filename" class="form-row">
+        <label for="node-input-filename"><i class="fa fa-fileo"></i> Filename</label>
+        <input type="text" id="node-input-filename" placeholder="Filename with extension">
+    </div>
+    <div id="filepath" class="form-row">
+        <label for="node-input-filepath"><i class="fa fa-fileo"></i> Filepath</label>
+        <input type="text" id="node-input-filepath" placeholder="Path to File">
+    </div>
+
+    <br/>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+</script>
+
+
+<!-- Next, some simple help text is provided for the node.                   -->
+<script type="text/x-red" data-help-name="cos-get">
+  <p>This <b>Cloud Object Storage Get Node</b> gets the image from the Cloud
+  Object Storage Service on Bluemix. </p>
+  <p>Provide in <b>msg.objectname</b> the name of the stored object in the Cloud
+  Object Storage Service and in <b>msg.bucket</b> the bucket it resides in.</p>
+  <p>The <b>msg.mode</b> indicates to store the image in the <b>msg.payload</b>
+  (mode=0) or into the given filename and path (mode=1). </p>
+  <p>You can override the node-defaults by giving <b>msg.filename</b>
+  and <b>msg.filepath</b> with the necessary informations.</p>
+  <p>The node returns <b>msg.payload</b> and the <b>msg.objectname</b> name of
+  the object. </p>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('cos-get',{
+        category: 'storage',     
+        defaults: {             
+            name: {value:""},
+            bucket: {value:"", required:true},
+            objectname: {value:"", required:true},
+            filepath: {value:"", required:false},
+            filename: {value:"", required:false},
+            mode: {value:"0", required:true},
+            cosconfig: {value:"", type:"cos-config", required:true}
+        },
+        inputs:1,               
+        outputs:1, 
+        icon: "cloud1_20x20.png",
+        color: "#A6BBCF",
+        oneditprepare: function() {
+            $("#node-input-mode").change(function() {
+                var choose = $("#node-input-mode").val();
+                console.log(choose);
+                if (choose == "0") {
+                	$("#filename").show();
+                	$("#filepath").show();
+                } else {
+                	$("#filename").hide();
+                	$("#filepath").hide();
+                }
+            });
+        },
+	label: function() {   
+            return this.name || "cloud object storage get";
+        },
+        labelStyle: function() {
+            return this.name?"node_label_italic":"";
+        }
+    });
+</script>
+<!--  Cloud Object Storage Get Node   -->
+
+
+<!--  Cloud Object Storage Put Node   -->
+<script type="text/x-red" data-template-name="cos-put">
+    <div class="form-row">
+        <label for="node-input-cosconfig"><i class="fa fa-tasks"></i> Cloud Object Storage Service</label>
+        <input type="text" id="node-input-cosconfig">
+    </div>
+    <div id="mode" class="form-row">
+        <label for="node-input-mode"><i class="fa fa-fileo"></i> Mode</label>
+        <select id="node-input-mode">
+            <option value="0">Filebased</option>
+            <option value="1">Buffer</option>
+        </select>
+    </div>
+    <div id="formattype" class="form-row">
+        <label for="node-input-formattype"><i class="fa fa-fileo"></i> Type</label>
+        <select id="node-input-formattype">
+            <option value="0">Image</option>
+            <option value="1">Audio</option>
+        </select>
+    </div>
+    <div id="filename" class="form-row">
+        <label for="node-input-filename"><i class="fa fa-fileo"></i> Filename</label>
+        <input type="text" id="node-input-filename" placeholder="Filename with extension">
+    </div>
+    <div id="filepath" class="form-row">
+        <label for="node-input-filepath"><i class="fa fa-fileo"></i> Filepath</label>
+        <input type="text" id="node-input-filepath" placeholder="Path to File">
+    </div>
+    <div id="imageformat" class="form-row node-input-imageformat">
+		<label for="node-input-imageformat"><i class="fa fa-file-image-o"></i> </label>
+		<select id="node-input-imageformat">
+			<option value="jpeg">JPEG</option>
+			<option value="png">PNG</option>
+			<option value="gif">GIF</option>
+			<option value="bmp">BMP</option>
+			<option value="yuv">YUV</option>
+			<option value="rgb">RGB</option>
+			<option value="rgba">RGBA</option>
+			<option value="bgr">BGR</option>
+			<option value="bgra">BGRA</option>
+        </select>
+    </div>
+    <div id="audioformat" class="form-row node-input-audioformat">
+		<label for="node-input-audioformat"><i class="fa fa-file-image-o"></i> </label>
+		<select id="node-input-audioformat">
+			<option value="wav">WAV</option>
+			<option value="mpeg">MP3</option>
+        </select>
+    </div>
+    <div id="objectmode" class="form-row">
+        <label for="node-input-objectmode"><i class="fa fa-fileo"></i> Object Name Mode</label>
+        <select id="node-input-objectmode">
+            <option value="0">Take Filename</option>
+            <option value="1">Generate New</option>
+            <option value="2">Specify</option>
+        </select>
+    </div>
+    <div id="objectname" class="form-row">
+        <label for="node-input-objectname"><i class="fa fa-fileo"></i> Object Name</label>
+        <input type="text" id="node-input-objectname" placeholder="Name of the Object in the Store">
+    </div>
+    <div class="form-row">
+        <label for="node-input-bucket"><i class="fa fa-folder-open-o"></i> Bucket</label>
+        <input type="text" id="node-input-bucket" placeholder="Bucket">
+    </div>
+
+    <br/>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+</script>
+
+
+<!-- Next, some simple help text is provided for the node.                   -->
+<script type="text/x-red" data-help-name="cos-put">
+  <p>This <b>Cloud Object Storage Put Node</b> sends the image to the Cloud
+  Object Storage Service on Bluemix. </p>
+  <p>The <b>msg.mode</b> indicates if the <b>msg.payload</b> contains the raw
+  image or only the trigger for the image </p>
+  <p>You can override the node-defaults by
+  giving <b>msg.filename</b>, <b>msg.filepath</b> and <b>msg.formattype</b> with
+  the necessary informations.</p>
+  <p>The object will be stored as <b>msg.objectname</b> into the
+  bucket <b>msg.bucket</b> </p>
+  <p>The node returns <b>msg.payload</b> with the link to the Object. </p>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('cos-put',{
+        category: 'storage',     
+        defaults: {             
+            name: {value:""},
+            bucket: {value:"", required:true},
+            objectname: {value:"", required:false},
+            objectmode: {value:"0", required:true},
+            imageformat: {value:"jpeg", required:false},
+            audioformat: {value:"wav", required:false},
+            filepath: {value:"", required:false},
+            filename: {value:"", required:false},
+            formattype: {value:"0", required:true},
+            mode: {value:"0", required:true},
+            cosconfig: {value:"", type:"cos-config", required:true}
+        },
+        inputs:1,               
+        outputs:1, 
+        icon: "cloud1_20x20.png",
+        color: "#A6BBCF",
+        oneditprepare: function() {
+            $("#node-input-mode").change(function() {
+                var choose = $("#node-input-mode").val();
+                console.log(choose);
+                if (choose == "0") {
+                	$("#filename").show();
+                	$("#filepath").show();
+                } else {
+                	$("#filename").hide();
+                	$("#filepath").hide();
+                }
+            });
+            $("#node-input-formattype").change(function() {
+                var choose = $("#node-input-formattype").val();
+                console.log(choose);
+                if (choose == "0") {
+                	$("#imageformat").show();
+                	$("#audioformat").hide();
+                } else {
+                	$("#imageformat").hide();
+                	$("#audioformat").show();
+                }
+            });
+            $("#node-input-objectmode").change(function() {
+                var choose = $("#node-input-objectmode").val();
+                console.log(choose);
+                if (choose == "2") {
+                	$("#objectname").show();
+                } else {
+                	$("#objectname").hide();
+                }
+            });
+        },
+		label: function() {   
+            return this.name || "cloud object storage put";
+        },
+        labelStyle: function() {
+            return this.name?"node_label_italic":"";
+        }
+    });
+</script>
+<!--  Cloud Object Storage Put Node   -->
+
+<!--  Cloud Object Storage Del Node   -->
+<script type="text/x-red" data-template-name="cos-del">
+    <div class="form-row">
+        <label for="node-input-cosconfig"><i class="fa fa-tasks"></i> Cloud Object Storage Service</label>
+        <input type="text" id="node-input-cosconfig">
+    </div>
+    <div id="objectname" class="form-row">
+        <label for="node-input-objectname"><i class="fa fa-fileo"></i> Object Name</label>
+        <input type="text" id="node-input-objectname" placeholder="Name of the Object in the Store">
+    </div>
+    <div class="form-row">
+        <label for="node-input-bucket"><i class="fa fa-folder-open-o"></i> Bucket</label>
+        <input type="text" id="node-input-bucket" placeholder="Bucket">
+    </div>
+
+    <br/>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+</script>
+
+
+<!-- Next, some simple help text is provided for the node.                   -->
+<script type="text/x-red" data-help-name="cos-del">
+	<p>This <b>Cloud Object Storage Del Node</b> deletes the image from the
+	Cloud Object Storage Service on Bluemix. </p>
+	<p>Provide in <b>msg.objectname</b> the name of the stored object in the
+	Cloud Object Storage Service and in msg.bucket the name of the bucket
+	the object resides in.</p>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('cos-del',{
+        category: 'storage',     
+        defaults: {             
+            name: {value:""},
+            bucket: {value:"", required:true},
+            objectname: {value:"", required:true},
+            cosconfig: {value:"", type:"cos-config", required:true}
+        },
+        inputs:1,               
+        outputs:0, 
+        icon: "cloud1_20x20.png",
+        color: "#A6BBCF",
+		label: function() {   
+            return this.name || "cloud object storage del";
+        },
+        labelStyle: function() {
+            return this.name?"node_label_italic":"";
+        }
+    });
+</script>
+<!--  Cloud Object Storage Del Node   -->
+
+
+<!--  Cloud Object Storage Config Node -->
+<script type="text/x-red" data-template-name="cos-config">
+    <div id="key" class="form-row">
+        <label for="node-config-input-key"><i class="fa fa-users"></i> Data Access Key</label>
+        <input type="text" id="node-config-input-key" placeholder="AccessKey">
+    </div>
+    <div id="secret" class="form-row">
+        <label for="node-config-input-secret"><i class="fa fa-user-secret"></i> Secret Access Key</label>
+        <input type="text" id="node-config-input-secret" placeholder="Secret">
+    </div>
+    <div id="endpoint" class="form-row">
+        <label for="node-config-input-endpoint"><i class="fa fa-key"></i> Authentication Endpoint</label>
+        <input type="text" id="node-config-input-endpoint" placeholder="AuthEndpoint">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="Name">
+    </div>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('cos-config',{
+        category: 'config',
+        defaults: {
+            key: {value:"",required:true},
+            secret: {value:"",required:true},
+            endpoint: {value:"s3-api.us-geo.objectstorage.softlayer.net",required:true},
+            name: {value:"",required:true}
+        },
+        label: function() {
+            return this.endpoint + ":" + (this.name || "cloud object storage config");
+        }
+    });
+</script>
+<!--  Cloud Object Storage Config Node -->

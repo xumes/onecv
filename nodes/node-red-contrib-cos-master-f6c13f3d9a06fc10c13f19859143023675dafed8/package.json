@@ -1,0 +1,35 @@
+{
+    "name": "node-red-contrib-cos",
+    "version": "0.0.1",
+    "description": "Node-Red Nodes for IBM Cloud Object Storage service.",
+    "main": "cos.js",
+    "keywords": [
+	"ibm",
+	"node-red",
+	"bluemix",
+	"object",
+	"storage",
+	"s3",
+	"object storage"
+    ],
+    "author": {
+     	"name": "Harald Seipp",
+     	"email": "seipp@de.ibm.com"
+    },
+    "license": "Apache-2.0",
+    "node-red" : {
+        "nodes": {
+            "cos": "cos.js"
+        }
+    },
+    "dependencies": {
+	"bluebird": "^3.3.3",
+	"knox": "latest",
+	"request": "latest", 
+	"es6-error": "latest",
+	"is-utf8": "latest",
+	"fs": "latest",
+	"fs-extra": "latest",
+	"node-uuid": "latest"
+    }
+}

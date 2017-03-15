@@ -1,0 +1,27 @@
+{
+	"cos": {
+		"label": {
+			"config": "Cloud Object Storage Config",
+			"objstore": "Object Store",
+			"dallas": "Dallas",
+			"london": "London",
+			"filename": "File Name",
+			"filedefpath": "File default path",
+			"filepath": "File Path",
+			"filemode":"File Mode",
+			"fileformat": "File Format",
+			"object": "Object",
+			"filefqn" : "File Qualified Path and Name",
+			"region":"Region",
+			"tendantId":"Tendant Id",
+			"userId":"User Id",
+			"userName":"User Name",
+			"password":"Password",
+			"container":"Container",
+			"name": "Name",
+			"none": "none"
+        },
+       "errors": {
+        }
+    }
+}
